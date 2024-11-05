@@ -33,6 +33,7 @@ export class AuthService {
         username: newUser.username, 
         email: newUser.email, 
         id: newUser._id, // MongoDB default _id field
+        password: newUser.password,
         createdAt: newUser.createdAt 
       },
     };
