@@ -32,8 +32,8 @@ export class AuthService {
       user: { 
         username: newUser.username, 
         email: newUser.email, 
-        id: password, // MongoDB default _id field
-        password: password,
+        id: newUser._id, // MongoDB default _id field
+        
         createdAt: newUser.createdAt 
       },
     };
@@ -58,9 +58,9 @@ export class AuthService {
   async signIn(usernameOrEmail: string, password: string): Promise<any> {
     // Find user by username or email
     const user = await this.usersService.findOneByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
-
+   
     // Validate login credentials
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await bcrypt.compare('password123', user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 

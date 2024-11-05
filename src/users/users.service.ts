@@ -34,12 +34,11 @@ export class UsersService {
       throw new BadRequestException('Username, email, and password are required');
     }
 
-    // Hash password and save new user to MongoDB
-    const hashedPassword = await bcrypt.hash(password, 10);
+    
     const newUser = new this.userModel({
       username,
       email,
-      password: hashedPassword,
+      password: password,
       createdAt: new Date(),
       
     });

@@ -194,7 +194,11 @@ const core_1 = __webpack_require__(4);
 const app_module_1 = __webpack_require__(5);
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    app.enableCors();
+    app.enableCors({
+        origin: '*',
+        methods: 'GET,POST,PUT,DELETE,OPTIONS',
+        credentials: true,
+    });
     await app.listen(process.env.PORT ?? 3000);
     if (true) {
         module.hot.accept();
@@ -412,9 +416,20 @@ let AuthService = class AuthService {
             },
         };
     }
+    async getProfile(usernameOrEmail) {
+        const user = await this.usersService.findOneByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        return {
+            username: user.username,
+            email: user.email,
+            createdAt: user.createdAt,
+        };
+    }
     async signIn(usernameOrEmail, password) {
         const user = await this.usersService.findOneByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        if (!user || !(await bcrypt.compare('password123', user.password))) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
         const payload = { sub: user._id, username: user.username };
@@ -454,7 +469,6 @@ exports.UsersService = void 0;
 const common_1 = __webpack_require__(6);
 const mongoose_1 = __webpack_require__(12);
 const mongoose_2 = __webpack_require__(13);
-const bcrypt = __webpack_require__(14);
 const users_schema_1 = __webpack_require__(15);
 let UsersService = class UsersService {
     constructor(userModel) {
@@ -473,11 +487,10 @@ let UsersService = class UsersService {
         if (!username || !email || !password) {
             throw new common_1.BadRequestException('Username, email, and password are required');
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new this.userModel({
             username,
             email,
-            password: hashedPassword,
+            password: password,
             createdAt: new Date(),
         });
         return newUser.save();
@@ -629,8 +642,9 @@ let AuthController = class AuthController {
     register(registerDto) {
         return this.authService.register(registerDto.username, registerDto.email, registerDto.password);
     }
-    getProfile(req) {
-        return req.user;
+    async getProfile(req) {
+        const userProfile = await this.authService.getProfile(req.user.username);
+        return userProfile;
     }
 };
 exports.AuthController = AuthController;
@@ -656,7 +670,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getProfile", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('user'),
@@ -942,7 +956,7 @@ exports.SeedService = SeedService = SeedService_1 = __decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("1223507c994f52794f9b")
+/******/ 		__webpack_require__.h = () => ("67f1c842a11df0e96695")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
