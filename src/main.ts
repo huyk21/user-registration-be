@@ -6,9 +6,9 @@ declare const module: any;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['https://unspalsh-gallery-lrf9rpdi9-huys-projects-b0a5a2b0.vercel.app/'], // Replace with your frontend URL
-    methods: 'GET,POST,PUT,DELETE', // Specify allowed methods
-    credentials: true, // Enable if you need to send cookies
+    origin: '*', // Allows requests from any origin
+    methods: 'GET,POST,PUT,DELETE,OPTIONS', // Allows common HTTP methods (OPTIONS is included for preflight requests)
+    credentials: true, // Include if you need to allow cookies
   });
   
 
