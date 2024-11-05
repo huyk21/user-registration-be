@@ -10,10 +10,12 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
-
+import { UsersService } from '../users/users.service';
 @Controller('user')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,
+    private readonly usersService: UsersService, 
+  ) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -31,7 +33,9 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
+  async getProfile(@Request() req) {
+    
+    const userProfile = await this.usersService.findOneByUsernameOrEmail(req.user.username, req.user.username); // Fetch full profile from DB
+    return userProfile;
   }
 }
