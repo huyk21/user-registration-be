@@ -21,21 +21,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthService = void 0;
 const common_1 = __webpack_require__(6);
 const users_service_1 = __webpack_require__(11);
-const jwt_1 = __webpack_require__(16);
-const bcrypt = __webpack_require__(14);
+const jwt_1 = __webpack_require__(15);
+const bcrypt = __webpack_require__(16);
 let AuthService = class AuthService {
     constructor(usersService, jwtService) {
         this.usersService = usersService;
         this.jwtService = jwtService;
     }
     async register(username, email, password) {
-        const userExists = await this.usersService.findOneByUsernameOrEmail(username, email);
-        if (userExists) {
-            throw new common_1.ConflictException('Username or email already exists');
-        }
-        if (!username || !email || !password) {
-            throw new common_1.BadRequestException('Username, email, and password are required');
-        }
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await this.usersService.create(username, email, hashedPassword);
         return {
@@ -44,7 +37,6 @@ let AuthService = class AuthService {
                 username: newUser.username,
                 email: newUser.email,
                 id: newUser._id,
-                password: password,
                 createdAt: newUser.createdAt
             },
         };
@@ -62,8 +54,7 @@ let AuthService = class AuthService {
     }
     async signIn(usernameOrEmail, password) {
         const user = await this.usersService.findOneByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
-        return await bcrypt.compare(password.toString(), user.password.toString());
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        if (!user || !(await bcrypt.compare('password123', user.password))) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
         const payload = { sub: user._id, username: user.username };
@@ -86,7 +77,7 @@ exports.runtime =
 /******/ function(__webpack_require__) { // webpackRuntimeModules
 /******/ /* webpack/runtime/getFullHash */
 /******/ (() => {
-/******/ 	__webpack_require__.h = () => ("5c4eb668afc47e0bdf81")
+/******/ 	__webpack_require__.h = () => ("e6f763553b9bc757001b")
 /******/ })();
 /******/ 
 /******/ }

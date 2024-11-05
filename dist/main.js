@@ -343,7 +343,7 @@ exports.AuthModule = void 0;
 const common_1 = __webpack_require__(6);
 const auth_service_1 = __webpack_require__(10);
 const users_module_1 = __webpack_require__(17);
-const jwt_1 = __webpack_require__(16);
+const jwt_1 = __webpack_require__(15);
 const auth_controller_1 = __webpack_require__(18);
 const config_1 = __webpack_require__(20);
 let AuthModule = class AuthModule {
@@ -389,21 +389,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthService = void 0;
 const common_1 = __webpack_require__(6);
 const users_service_1 = __webpack_require__(11);
-const jwt_1 = __webpack_require__(16);
-const bcrypt = __webpack_require__(14);
+const jwt_1 = __webpack_require__(15);
+const bcrypt = __webpack_require__(16);
 let AuthService = class AuthService {
     constructor(usersService, jwtService) {
         this.usersService = usersService;
         this.jwtService = jwtService;
     }
     async register(username, email, password) {
-        const userExists = await this.usersService.findOneByUsernameOrEmail(username, email);
-        if (userExists) {
-            throw new common_1.ConflictException('Username or email already exists');
-        }
-        if (!username || !email || !password) {
-            throw new common_1.BadRequestException('Username, email, and password are required');
-        }
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await this.usersService.create(username, email, hashedPassword);
         return {
@@ -429,7 +422,7 @@ let AuthService = class AuthService {
     }
     async signIn(usernameOrEmail, password) {
         const user = await this.usersService.findOneByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
-        if (!user || !(await bcrypt.compare('password123', user.password))) {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
         const payload = { sub: user._id, username: user.username };
@@ -469,7 +462,7 @@ exports.UsersService = void 0;
 const common_1 = __webpack_require__(6);
 const mongoose_1 = __webpack_require__(12);
 const mongoose_2 = __webpack_require__(13);
-const users_schema_1 = __webpack_require__(15);
+const users_schema_1 = __webpack_require__(14);
 let UsersService = class UsersService {
     constructor(userModel) {
         this.userModel = userModel;
@@ -520,13 +513,6 @@ module.exports = require("mongoose");
 
 /***/ }),
 /* 14 */
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("bcryptjs");
-
-/***/ }),
-/* 15 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -570,11 +556,18 @@ exports.UserSchema = mongoose_1.SchemaFactory.createForClass(User);
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ ((module) => {
 
 "use strict";
 module.exports = require("@nestjs/jwt");
+
+/***/ }),
+/* 16 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("bcryptjs");
 
 /***/ }),
 /* 17 */
@@ -593,7 +586,7 @@ exports.UsersModule = void 0;
 const common_1 = __webpack_require__(6);
 const mongoose_1 = __webpack_require__(12);
 const users_service_1 = __webpack_require__(11);
-const users_schema_1 = __webpack_require__(15);
+const users_schema_1 = __webpack_require__(14);
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
@@ -697,7 +690,7 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AuthGuard = void 0;
 const common_1 = __webpack_require__(6);
-const jwt_1 = __webpack_require__(16);
+const jwt_1 = __webpack_require__(15);
 const config_1 = __webpack_require__(20);
 let AuthGuard = class AuthGuard {
     constructor(jwtService, configService) {
@@ -859,7 +852,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SeedService = void 0;
 const common_1 = __webpack_require__(6);
 const database_provider_1 = __webpack_require__(21);
-const bcrypt = __webpack_require__(14);
+const bcrypt = __webpack_require__(16);
 let SeedService = SeedService_1 = class SeedService {
     constructor(dbProvider) {
         this.dbProvider = dbProvider;
@@ -956,7 +949,7 @@ exports.SeedService = SeedService = SeedService_1 = __decorate([
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("67f1c842a11df0e96695")
+/******/ 		__webpack_require__.h = () => ("31b2628a89675c62325f")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */

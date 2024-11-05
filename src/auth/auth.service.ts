@@ -13,15 +13,7 @@ export class AuthService {
   // Register a new user
   async register(username: string, email: string, password: string): Promise<any> {
     // Check if username or email already exists
-    const userExists = await this.usersService.findOneByUsernameOrEmail(username, email);
-    if (userExists) {
-      throw new ConflictException('Username or email already exists');
-    }
-
-    // Validate input fields
-    if (!username || !email || !password) {
-      throw new BadRequestException('Username, email, and password are required');
-    }
+   
 
     // Hash the password and create a new user
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -60,7 +52,7 @@ export class AuthService {
     const user = await this.usersService.findOneByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
    
     // Validate login credentials
-    if (!user || !(await bcrypt.compare('password123', user.password))) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
