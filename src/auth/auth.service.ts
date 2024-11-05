@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -37,7 +37,22 @@ export class AuthService {
       },
     };
   }
+ // Get user profile by username or email
+ async getProfile(usernameOrEmail: string): Promise<any> {
+  // Use findOneByUsernameOrEmail to fetch user data
+  const user = await this.usersService.findOneByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
+  
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
 
+  // Return the relevant profile fields
+  return {
+    username: user.username,
+    email: user.email,
+    createdAt: user.createdAt,
+  };
+}
   // User login
   async signIn(usernameOrEmail: string, password: string): Promise<any> {
     // Find user by username or email
